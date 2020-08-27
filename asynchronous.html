@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Asynchronous JavaScript</title>
 </head>
+
 <body>
     <h1>Asynchronous JavaScript</h1>
     <script>
@@ -52,64 +54,113 @@
 
         // Using Promises
 
-        const getIDs = new Promise((resolve, reject) => {
-            setTimeout(() => {
-                resolve([523, 883, 432, 974]);
-                //reject();
-            }, 1500);
-        });
-
-        const getRecipe = recID => {
-            return new Promise((resolve, reject) => {
-                setTimeout(ID => {
-                const recipe = {title:'Fresh tomato pasta', publisher:'Jonas'};
-                resolve(`${ID}: ${recipe.title}`);
-                }, 1500, recID);
-            });
-        };
-
-        const getRelated = publisher => {
-            return new Promise((resolve, reject) => {
-                setTimeout(pub => {
-                    const recipe = {title:'Italian Pizza', publisher:'Jonas'};
-                    resolve(`${pub}: ${recipe.title}`);
-                }, 1500, publisher);
-            });
-        };
-
-        // Consume Promises old way
-
-        // getIDs
-        // .then(IDs => { // this will return if the request succeded
-        //     console.log(IDs);
-        //     return getRecipe(IDs[2])
-        // })
-        // .then(recipe => {
-        //     console.log(recipe);
-        //     return getRelated('Jonas');
-        // })
-        // .then(recipe => {
-        //     console.log(recipe);
-        // })
-        // .catch(error => { // this will return if the request NOT succeded
-        //     console.log('Error!!');
+        // const getIDs = new Promise((resolve, reject) => {
+        //     setTimeout(() => {
+        //         resolve([523, 883, 432, 974]);
+        //         //reject();
+        //     }, 1500);
         // });
 
-        // Consume Promises using Async/Await
-        async function getRecipesAW(){
-            const IDs = await getIDs;
-            console.log(IDs);
-            const recipe = await getRecipe(IDs[2]);
-            console.log(recipe);
-            const related = await getRelated('Jonas');
-            console.log(related);
+        // const getRecipe = recID => {
+        //     return new Promise((resolve, reject) => {
+        //         setTimeout(ID => {
+        //         const recipe = {title:'Fresh tomato pasta', publisher:'Jonas'};
+        //         resolve(`${ID}: ${recipe.title}`);
+        //         }, 1500, recID);
+        //     });
+        // };
 
-            return recipe;
+        // const getRelated = publisher => {
+        //     return new Promise((resolve, reject) => {
+        //         setTimeout(pub => {
+        //             const recipe = {title:'Italian Pizza', publisher:'Jonas'};
+        //             resolve(`${pub}: ${recipe.title}`);
+        //         }, 1500, publisher);
+        //     });
+        // };
+
+        // // Consume Promises old way
+
+        // // getIDs
+        // // .then(IDs => { // this will return if the request succeded
+        // //     console.log(IDs);
+        // //     return getRecipe(IDs[2])
+        // // })
+        // // .then(recipe => {
+        // //     console.log(recipe);
+        // //     return getRelated('Jonas');
+        // // })
+        // // .then(recipe => {
+        // //     console.log(recipe);
+        // // })
+        // // .catch(error => { // this will return if the request NOT succeded
+        // //     console.log('Error!!');
+        // // });
+
+        // // Consume Promises using Async/Await
+        // async function getRecipesAW(){
+        //     const IDs = await getIDs;
+        //     console.log(IDs);
+        //     const recipe = await getRecipe(IDs[2]);
+        //     console.log(recipe);
+        //     const related = await getRelated('Jonas');
+        //     console.log(related);
+
+        //     return recipe;
+        // }
+        // // const result = getRecipesAW();
+        // // console.log(`${result} is the best ever!`); // will not work 
+        // getRecipesAW().then(result => console.log(`${result} is the best ever!`))
+
+        //////////////////
+        // Making AJAX calls with Fetch and Promises
+
+        //fetch('https://crossorigin.me/https://www.metaweather.com/api/location/2487956/'); //doesn't work
+        function getWeather(woeid) {
+            fetch(`https://cors-anywhere.herokuapp.com/https://www.metaweather.com/api/location/${woeid}/`)
+                .then(result => {
+                    //console.log(result);
+                    return result.json();
+                })
+                .then(data => {
+                    //console.log(data);
+                    const today = data.consolidated_weather[0];
+                    console.log(`Temperatures today in ${data.title} stay between ${today.min_temp} and ${today.max_temp}.`);
+                })
+                .catch(error => console.log(error));
+
         }
-        // const result = getRecipesAW();
-        // console.log(`${result} is the best ever!`); // will not work 
-        getRecipesAW().then(result => console.log(`${result} is the best ever!`))
-     
+
+        //getWeather(2487956); // San Francisco
+        //getWeather(44418); // London
+
+        //////////////////
+        // Making AJAX calls with Fetch and Async/Await
+
+        async function getWeatherAW(woeid) {
+            try {
+
+                const result = await fetch(`https://cors-anywhere.herokuapp.com/https://www.metaweather.com/api/location/${woeid}/`);
+                const data = await result.json();
+                //console.log(data);
+                const tommorow = data.consolidated_weather[1];
+                console.log(`Temperatures tomorrow in ${data.title} stay between ${tommorow.min_temp} and ${tommorow.max_temp}.`);
+
+                return data;
+            } catch (error) {
+                console.log(error);
+            }
+        }
+        getWeatherAW(2487956); // San Francisco
+        //getWeatherAW(44418); // London
+        // Store London data
+        let dataLondon;
+        getWeatherAW(44418).then(data => {
+            dataLondon = data;
+            console.log(dataLondon);
+        });
+
     </script>
 </body>
+
 </html>
